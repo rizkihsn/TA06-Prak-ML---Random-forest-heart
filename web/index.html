@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lembar Prediksi Jantung | TA-06 Random Forest</title>
+  <meta name="description"
+    content="Isi hasil pemeriksaan dan lihat bagaimana 50 pohon Random Forest menilai kemungkinan penyakit jantung. Proyek TA-06 Pembelajaran Mesin.">
+  <meta name="theme-color" content="#FBE6E4">
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FBE6E4'/%3E%3Cpath d='M1 17h7l3-8 5 18 4-14 2 4h9' fill='none' stroke='%23C0172F' stroke-width='2.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <a class="skip" href="#form">Lompat ke formulir</a>
+
+  <header class="masthead">
+    <div class="masthead-text">
+      <h1>Lembar Prediksi<br>Penyakit Jantung</h1>
+      <p class="lede">Isi hasil pemeriksaan pasien, lalu lihat bagaimana 50 pohon Random Forest menilainya satu per
+        satu. Dibuat untuk tugas TA-06 Prak ML - Random forest.</p>
+    </div>
+    <dl class="readout" aria-label="Isian yang sedang digambar pada jejak EKG">
+      <div>
+        <dt>Detak maksimum</dt>
+        <dd><span id="bpm">138</span> <small>bpm</small></dd>
+      </div>
+      <div>
+        <dt>Segmen ST</dt>
+        <dd id="stLabel">Datar</dd>
+      </div>
+    </dl>
+  </header>
+
+  <section class="strip" aria-label="Jejak EKG skematis">
+    <canvas id="ecg" aria-hidden="true"></canvas>
+    <p class="strip-note">Gambar skematis, bukan rekaman pasien. Kecepatan detak mengikuti isian detak maksimum, bentuk
+      segmen ST mengikuti isian kemiringan dan depresi ST.</p>
+  </section>
+
+  <noscript>
+    <p class="noscript">Halaman ini menjalankan model langsung di browser, jadi JavaScript harus aktif.</p>
+  </noscript>
+
+  <main class="workspace">
+    <form id="form" class="form" autocomplete="off" novalidate>
+      <div class="presets" role="group" aria-label="Profil contoh">
+        <span class="presets-label">Coba profil contoh</span>
+        <button type="button" data-preset="rendah">Skor rendah</button>
+        <button type="button" data-preset="menengah">Skor menengah</button>
+        <button type="button" data-preset="tinggi">Skor tinggi</button>
+      </div>
+
+      <fieldset class="group">
+        <legend>Profil dan keluhan</legend>
+
+        <div class="field">
+          <label for="Age">Usia</label>
+          <div class="num">
+            <input type="range" id="AgeR" aria-label="Usia, penggeser" min="28" max="77" step="1" value="52">
+            <input type="number" id="Age" inputmode="numeric" step="1" value="52">
+            <span class="unit">tahun</span>
+          </div>
+          <p class="note" id="note-Age" role="status"></p>
+        </div>
+
+        <fieldset class="field choice">
+          <legend>Jenis kelamin</legend>
+          <div class="seg-row">
+            <label class="seg"><input type="radio" name="Sex" value="M" checked><span>Laki-laki</span></label>
+            <label class="seg"><input type="radio" name="Sex" value="F"><span>Perempuan</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field choice">
+          <legend>Jenis nyeri dada</legend>
+          <div class="seg-row seg-grid">
+            <label class="seg"><input type="radio" name="ChestPainType" value="ASY" checked><span>Tanpa keluhan nyeri
+                dada</span></label>
+            <label class="seg"><input type="radio" name="ChestPainType" value="NAP"><span>Nyeri bukan
+                angina</span></label>
+            <label class="seg"><input type="radio" name="ChestPainType" value="ATA"><span>Angina atipikal</span></label>
+            <label class="seg"><input type="radio" name="ChestPainType" value="TA"><span>Angina tipikal</span></label>
+          </div>
+        </fieldset>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Pemeriksaan saat istirahat</legend>
+
+        <div class="field">
+          <label for="RestingBP">Tekanan darah</label>
+          <div class="num">
+            <input type="range" id="RestingBPR" aria-label="Tekanan darah, penggeser" min="80" max="200" step="1"
+              value="130">
+            <input type="number" id="RestingBP" inputmode="numeric" step="1" value="130">
+            <span class="unit">mmHg</span>
+          </div>
+          <p class="hint">Tekanan sistolik saat istirahat.</p>
+          <p class="note" id="note-RestingBP" role="status"></p>
+        </div>
+
+        <div class="field">
+          <label for="Cholesterol">Kolesterol</label>
+          <div class="num">
+            <input type="range" id="CholesterolR" aria-label="Kolesterol, penggeser" min="85" max="603" step="1"
+              value="240">
+            <input type="number" id="Cholesterol" inputmode="numeric" step="1" value="240">
+            <span class="unit">mg/dl</span>
+          </div>
+          <label class="check"><input type="checkbox" id="CholUnknown"> <span>Belum ada hasil lab (pakai nilai tengah
+              data latih: <b id="cholMedian">238</b> mg/dl)</span></label>
+          <p class="note" id="note-Cholesterol" role="status"></p>
+        </div>
+
+        <fieldset class="field choice">
+          <legend>Gula darah puasa di atas 120 mg/dl?</legend>
+          <div class="seg-row">
+            <label class="seg"><input type="radio" name="FastingBS" value="0" checked><span>Tidak</span></label>
+            <label class="seg"><input type="radio" name="FastingBS" value="1"><span>Ya</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field choice">
+          <legend>Hasil EKG saat istirahat</legend>
+          <div class="seg-row seg-grid">
+            <label class="seg"><input type="radio" name="RestingECG" value="Normal" checked><span>Normal</span></label>
+            <label class="seg"><input type="radio" name="RestingECG" value="ST"><span>Kelainan gelombang
+                ST-T</span></label>
+            <label class="seg"><input type="radio" name="RestingECG" value="LVH"><span>Hipertrofi ventrikel
+                kiri</span></label>
+          </div>
+        </fieldset>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Uji olahraga</legend>
+
+        <div class="field">
+          <label for="MaxHR">Detak jantung maksimum</label>
+          <div class="num">
+            <input type="range" id="MaxHRR" aria-label="Detak jantung maksimum, penggeser" min="60" max="202" step="1"
+              value="138">
+            <input type="number" id="MaxHR" inputmode="numeric" step="1" value="138">
+            <span class="unit">bpm</span>
+          </div>
+          <p class="hint">Detak tertinggi yang tercapai selama uji treadmill.</p>
+          <p class="note" id="note-MaxHR" role="status"></p>
+        </div>
+
+        <fieldset class="field choice">
+          <legend>Nyeri dada saat berolahraga?</legend>
+          <div class="seg-row">
+            <label class="seg"><input type="radio" name="ExerciseAngina" value="N" checked><span>Tidak</span></label>
+            <label class="seg"><input type="radio" name="ExerciseAngina" value="Y"><span>Ya</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="Oldpeak">Depresi segmen ST (oldpeak)</label>
+          <div class="num">
+            <input type="range" id="OldpeakR" aria-label="Depresi segmen ST, penggeser" min="-2.6" max="6.2" step="0.1"
+              value="0.5">
+            <input type="number" id="Oldpeak" inputmode="decimal" step="0.1" value="0.5">
+            <span class="unit">mm</span>
+          </div>
+          <p class="hint">Seberapa turun segmen ST saat olahraga dibanding saat istirahat.</p>
+          <p class="note" id="note-Oldpeak" role="status"></p>
+        </div>
+
+        <fieldset class="field choice">
+          <legend>Arah segmen ST pada puncak olahraga</legend>
+          <div class="seg-row">
+            <label class="seg"><input type="radio" name="ST_Slope" value="Up"><span>Naik</span></label>
+            <label class="seg"><input type="radio" name="ST_Slope" value="Flat" checked><span>Datar</span></label>
+            <label class="seg"><input type="radio" name="ST_Slope" value="Down"><span>Turun</span></label>
+          </div>
+        </fieldset>
+      </fieldset>
+    </form>
+
+    <aside id="result" class="slip" aria-labelledby="slipTitle">
+      <h2 id="slipTitle">Hasil model</h2>
+
+      <div aria-live="polite" aria-atomic="true">
+        <p class="score" id="score"><span id="scoreNum">0</span><span class="pct">%</span></p>
+        <p class="score-label">skor penyakit jantung, rata-rata dari 50 pohon</p>
+        <p class="verdict" id="verdict">Model memprediksi: normal</p>
+        <p class="hedge" id="hedge" hidden>Skor dekat batas 50%, jadi hasilnya kurang tegas. Perubahan kecil pada isian
+          bisa membaliknya.</p>
+      </div>
+
+      <h3>Suara 50 pohon</h3>
+      <svg id="forest" class="forest" role="img" aria-labelledby="forestCaption" preserveAspectRatio="none"></svg>
+      <p class="caption" id="forestCaption"></p>
+
+      <h3>Yang paling berpengaruh pada isian ini</h3>
+      <ul class="factors" id="factors"></ul>
+      <p class="caption" id="factorsNote"></p>
+
+      <p class="warn"><b>Alat belajar, bukan alat diagnosis.</b> Hasil ini berasal dari model statistik pada data 918
+        pasien. Untuk keluhan nyata, temui tenaga kesehatan.</p>
+    </aside>
+  </main>
+
+  <section class="about" aria-labelledby="aboutTitle">
+    <div class="about-inner">
+      <div class="about-text">
+        <h2 id="aboutTitle">Seberapa baik modelnya?</h2>
+        <p id="aboutLead"></p>
+        <dl class="metrics" id="metrics"></dl>
+        <p class="fine" id="aboutFine"></p>
+      </div>
+
+      <div class="about-figs">
+        <table class="cm" id="cm"></table>
+        <h3>Variabel yang paling diandalkan model</h3>
+        <ul class="bars" id="importance"></ul>
+        <p class="caption">Importance dijumlahkan per variabel asli, karena kategori dipecah menjadi beberapa kolom 0/1.
+        </p>
+      </div>
+    </div>
+
+    <div class="how">
+      <h2>Cara model sampai pada skor</h2>
+      <ol>
+        <li>Isian Anda diubah menjadi 20 angka. Pilihan kategori dipecah menjadi kolom 0 dan 1.</li>
+        <li>Tiap pohon menjawab rangkaian pertanyaan ya atau tidak, misalnya "apakah kemiringan ST naik?", sampai tiba
+          di sebuah daun yang memberi skor.</li>
+        <li>Skor akhir adalah rata-rata skor 50 pohon. Skor di atas 50% diprediksi sebagai penyakit jantung.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>TA-06 Prak ML - Random forest, Teknik Informatika, Universitas Bale Bandung. Dibuat oleh Rizki Hasan Fauzi (NIM
+      301240071, kelas 5B).</p>
+    <p>Data: <a href="https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction" target="_blank"
+        rel="noopener">Heart Failure Prediction Dataset (fedesoriano, Kaggle)</a>. Pada data asli, 172 nilai kolesterol
+      tercatat 0 dan diperlakukan sebagai data hilang, lalu diganti median. Model dilatih dengan scikit-learn dan
+      dijalankan langsung di browser Anda; tidak ada data yang dikirim ke server.</p>
+  </footer>
+
+  <div class="mini" id="mini" hidden>
+    <span class="mini-score"><b id="miniNum">0</b>%</span>
+    <span class="mini-verdict" id="miniVerdict"></span>
+    <a href="#result" class="mini-go">Lihat hasil</a>
+  </div>
+
+  <script src="model.js"></script>
+  <script src="rf.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,187 @@
+{
+ "df_a": [
+  {
+   "n_estimators": 10,
+   "Akurasi Training": 0.9905,
+   "Akurasi Testing": 0.875,
+   "Akurasi CV (5-fold)": 0.8406,
+   "Std CV": 0.0279
+  },
+  {
+   "n_estimators": 50,
+   "Akurasi Training": 1.0,
+   "Akurasi Testing": 0.8804,
+   "Akurasi CV (5-fold)": 0.8488,
+   "Std CV": 0.0313
+  },
+  {
+   "n_estimators": 100,
+   "Akurasi Training": 1.0,
+   "Akurasi Testing": 0.8804,
+   "Akurasi CV (5-fold)": 0.8515,
+   "Std CV": 0.0279
+  },
+  {
+   "n_estimators": 200,
+   "Akurasi Training": 1.0,
+   "Akurasi Testing": 0.8804,
+   "Akurasi CV (5-fold)": 0.8515,
+   "Std CV": 0.0307
+  },
+  {
+   "n_estimators": 500,
+   "Akurasi Training": 1.0,
+   "Akurasi Testing": 0.8859,
+   "Akurasi CV (5-fold)": 0.8529,
+   "Std CV": 0.0299
+  }
+ ],
+ "df_b": [
+  {
+   "max_depth": "None (Unlimited)",
+   "Kedalaman asli (rata-rata)": 13.72,
+   "Akurasi Training": 1.0,
+   "Akurasi Testing": 0.8804,
+   "Selisih (Train - Test)": 0.1196,
+   "Akurasi CV (5-fold)": 0.8488
+  },
+  {
+   "max_depth": "3",
+   "Kedalaman asli (rata-rata)": 3.0,
+   "Akurasi Training": 0.8638,
+   "Akurasi Testing": 0.8587,
+   "Selisih (Train - Test)": 0.0051,
+   "Akurasi CV (5-fold)": 0.8447
+  },
+  {
+   "max_depth": "5",
+   "Kedalaman asli (rata-rata)": 5.0,
+   "Akurasi Training": 0.8951,
+   "Akurasi Testing": 0.875,
+   "Selisih (Train - Test)": 0.0201,
+   "Akurasi CV (5-fold)": 0.8515
+  },
+  {
+   "max_depth": "10",
+   "Kedalaman asli (rata-rata)": 10.0,
+   "Akurasi Training": 0.9891,
+   "Akurasi Testing": 0.8913,
+   "Selisih (Train - Test)": 0.0978,
+   "Akurasi CV (5-fold)": 0.8665
+  },
+  {
+   "max_depth": "20",
+   "Kedalaman asli (rata-rata)": 13.72,
+   "Akurasi Training": 1.0,
+   "Akurasi Testing": 0.8804,
+   "Selisih (Train - Test)": 0.1196,
+   "Akurasi CV (5-fold)": 0.8488
+  }
+ ],
+ "best_n": 50,
+ "best_depth": 10,
+ "importances": {
+  "ST_Slope_Up": 0.186635,
+  "ST_Slope_Flat": 0.094859,
+  "ChestPainType_ASY": 0.092973,
+  "Oldpeak": 0.089741,
+  "MaxHR": 0.084642,
+  "Cholesterol": 0.072942,
+  "Age": 0.068602,
+  "RestingBP": 0.065265,
+  "ExerciseAngina_Y": 0.057971,
+  "ExerciseAngina_N": 0.052461,
+  "Sex_F": 0.023466,
+  "FastingBS": 0.022671,
+  "Sex_M": 0.021472,
+  "ChestPainType_NAP": 0.012503,
+  "RestingECG_LVH": 0.011933,
+  "RestingECG_Normal": 0.010564,
+  "ChestPainType_ATA": 0.009842,
+  "ChestPainType_TA": 0.007527,
+  "ST_Slope_Down": 0.007088,
+  "RestingECG_ST": 0.006843
+ },
+ "perm": {
+  "ST_Slope_Up": 0.053804,
+  "ChestPainType_ASY": 0.046739,
+  "Sex_F": 0.029891,
+  "Oldpeak": 0.023913,
+  "ST_Slope_Flat": 0.019565,
+  "Sex_M": 0.017935,
+  "Cholesterol": 0.016304,
+  "MaxHR": 0.015217,
+  "RestingBP": 0.015217,
+  "ExerciseAngina_Y": 0.013043,
+  "FastingBS": 0.009783,
+  "ExerciseAngina_N": 0.009783,
+  "ChestPainType_ATA": 0.004348,
+  "RestingECG_LVH": 0.002717,
+  "Age": 0.002174,
+  "ChestPainType_NAP": 0.001087,
+  "ST_Slope_Down": 0.000543,
+  "ChestPainType_TA": 0.0,
+  "RestingECG_ST": -0.004348,
+  "RestingECG_Normal": -0.006522
+ },
+ "report": {
+  "Normal (0)": {
+   "precision": 0.8875,
+   "recall": 0.8658536585365854,
+   "f1-score": 0.8765432098765432,
+   "support": 82.0
+  },
+  "Penyakit Jantung (1)": {
+   "precision": 0.8942307692307693,
+   "recall": 0.9117647058823529,
+   "f1-score": 0.9029126213592233,
+   "support": 102.0
+  },
+  "accuracy": 0.8913043478260869,
+  "macro avg": {
+   "precision": 0.8908653846153847,
+   "recall": 0.8888091822094691,
+   "f1-score": 0.8897279156178832,
+   "support": 184.0
+  },
+  "weighted avg": {
+   "precision": 0.8912311872909698,
+   "recall": 0.8913043478260869,
+   "f1-score": 0.8911610358071593,
+   "support": 184.0
+  }
+ },
+ "cm": [
+  [
+   71,
+   11
+  ],
+  [
+   9,
+   93
+  ]
+ ],
+ "train_acc_final": 0.989100817438692,
+ "n_features": 20,
+ "oob": 0.8474114441416893,
+ "grup": {
+  "ST_Slope": 0.288581,
+  "ChestPainType": 0.122846,
+  "ExerciseAngina": 0.110432,
+  "Oldpeak": 0.089741,
+  "MaxHR": 0.084642,
+  "Cholesterol": 0.072942,
+  "Age": 0.068602,
+  "RestingBP": 0.065265,
+  "Sex": 0.044938,
+  "RestingECG": 0.02934,
+  "FastingBS": 0.022671
+ },
+ "cv_puncak_a": 0.8529,
+ "n_cv_puncak": 500,
+ "cv_puncak_b": 0.8665,
+ "median_latih": {
+  "Cholesterol": 238.0,
+  "RestingBP": 130.0
+ }
+}
